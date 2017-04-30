@@ -21,9 +21,26 @@ setDrive(int rightSpeed, int leftSpeed)
 	setLeftDrive(leftSpeed);
 }
 
-drivePID(int target)
+//Clear Function//
+
+void clearGyro()
 {
+	SensorValue(gyro) = 0;
+}
 
+void clearDrive()
+{
+	nMotorEncoder[driveLeftBack] = 0;
+	// I Guess this works...
+}
 
+void clearLift()
+{
+	nMotorEncoder[liftLeftEnc] = 0;
+}
 
+void clearAllEncoder()
+{
+	clearDrive();
+	clearLift();
 }
