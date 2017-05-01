@@ -22,6 +22,21 @@ void clearAllEncoder()
 	clearLift();
 }
 
+int getDriveEncoder()
+{
+	return (SensorValue[Drive1] + SensorValue[Drive2])/2;
+}
+
+int getLiftEncoder()
+{
+	return SensorValue[Lift1];
+}
+
+int getGyro()
+{
+	return SensorValue[Gyro];
+}
+
 void setLeftDrive(int speed)
 {
 #warning "motor[leftSide] = speed; has not been set"

@@ -5,11 +5,14 @@ task main()
 	//clearLCDLine(0);
 
   //displayNextLCDString("Hello");
-  writeDebugStream("HEDLLO");
-	while (time10[T1] <1500)
+	clearDebugStream();
+
+	while (time1[T1] <15000)
 	{
-		int t = time1[T1];
-		displayLCDNumber(1, 4, t, 4);
+		//int t = time1[T1];
+	if(time1[T1]%1000 == 0)
+		writeDebugStreamLine("setDrive(%d);/r/n", time1[T1]);
+		displayLCDNumber(1, 5, time1[T1], 4);
 	}
 		wait10Msec(200);
 
