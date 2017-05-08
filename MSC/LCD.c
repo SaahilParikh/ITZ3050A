@@ -16,9 +16,9 @@ string autonomousMenu[10] = {
 	"Blue Left 2",
 };
 
-string rEncoderString, lEncoderString, gyroString, driveEncoderString, liftPotString;
+string rEncoderString, lEncoderString, gyroString;
 
-#define numOfSettingsPages 4
+#define numOfSettingsPages 2
 
 enum { 	LCD_NO_BUTTONS = 0,
 	LCD_LEFT_BUTTON = 1,
@@ -100,45 +100,11 @@ void preAutonBattery()
 void debugDrive()
 {
 	clearLCD();
-	waitForRelease();
 	while(nLCDButtons != 2)
 	{
-		sprintf(driveEncoderString,"L:%d R:%d\r\n", SensorValue[leftEncoder], SensorValue[rightEncoder]);
-
-		if(nLCDButtons == rightButton)
-			drive(127, 127);
-		else if(nLCDButtons == leftButton)
-			drive(-127, -127);
-		else
-			drive(0,0);
-
-		centerLine(0, driveEncoderString);
-		centerLine(1,"-127  Exit  127");
-		delay(50);
+		sprintf(lEncoderString,"L:%d\r\n", SensorValue[leftEncoder], SensorValue[leftEncoder],"R:%d\r\n", SensorValue[rightEncoder]);
+		centerLine(0, lEncoderString);
 	}
-	waitForRelease();
-}
-
-void debugLift()
-{
-	clearLCD();
-	waitForRelease();
-	while(nLCDButtons != 2)
-	{
-		sprintf(liftPotString,"Pot:%d\r\n", SensorValue[pot]);
-
-		if(nLCDButtons == rightButton)
-			lift(127);
-		else if(nLCDButtons == leftButton)
-			lift(-127);
-		else
-			lift(0);
-
-		centerLine(0, liftPotString);
-		centerLine(1,"-127  Exit  127");
-		delay(50);
-	}
-	waitForRelease();
 }
 
 #warning "Settings"
@@ -147,62 +113,36 @@ void settings()
 	int page = 0;
 	while(page < numOfSettingsPages &&page >= 0)
 	{
-		waitForPress();
 		if(nLCDButtons == rightButton)
 		{
 			page++;
-			waitForRelease();
 		}
 		else if(nLCDButtons == leftButton)
 		{
 			page--;
-			waitForRelease();
 		}
 
-		switch(page)
+
+		if(page == 0)
 		{
-		case 0:
-			centerLine(0,"Drive Debug");
+			centerLine(0,"Drive Base Motors");
 			centerLine(1,"Enter");
-			waitForPress();
-			if(nLCDButtons == 2)
-				debugDrive();
-
-			//sprintf(lEncoderString,"lEncoder:%d\r\n", SensorValue[leftEncoder]);
-			//sprintf(rEncoderString,"rEncoder:%d\r\n", SensorValue[rightEncoder]);
-			//centerLine(0, lEncoderString);
-			//centerLine(1, rEncoderString);
-			break;
-		case 1:
-
-			centerLine(0,"Lift Debug");
-			centerLine(1,"Enter");
-			waitForPress();
-			if(nLCDButtons == 2)
-				debugLift();
-
-			break;
-		case 2:
-			centerLine(0,"Piston State");
-			centerLine(1,"Enter");
-			waitForPress();
 			if(nLCDButtons == 2)
 			{
-				SensorValue[Piston] = !SensorValue[Piston];
-				waitForRelease();
+				debugDrive();
 			}
-			break;
-		case 3:
+
+			sprintf(lEncoderString,"lEncoder:%d\r\n", SensorValue[leftEncoder]);
+			sprintf(rEncoderString,"rEncoder:%d\r\n", SensorValue[rightEncoder]);
+			centerLine(0, lEncoderString);
+			centerLine(1, rEncoderString);
+		}
+		else if(page == 1)
+		{
 			sprintf(gyroString,"Gyro:%d\r\n", SensorValue[gyro]);
 			centerLine(0, gyroString);
-			centerLine(1, "clear");
-			waitForPress();
-				if(nLCDButtons == 2)
-					clearGyro();
-			break;
-
-			delay(20);
 		}
+		delay(20);
 	}
 }
 
