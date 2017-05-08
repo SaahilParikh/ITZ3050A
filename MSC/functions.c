@@ -12,8 +12,7 @@ void clearDrive()
 {
 	nMotorEncoder[driveLeftBack] = 0;
 	nMotorEncoder[driveRightBack] = 0;
-	SensorValue[rightEncoder] = 0;
-	SensorValue[leftEncoder] = 0;
+	// I Guess this works...
 }
 
 
@@ -22,7 +21,6 @@ void clearLift()
 {
 	nMotorEncoder[liftLeftEnc] = 0;
 	nMotorEncoder[liftRightEnc] = 0;
-	SensorValue[pot] = 0;
 }
 
 void clearAllEncoder()
@@ -33,15 +31,15 @@ void clearAllEncoder()
 
 void setLeftDrive(int speed)
 {
-	motor[driveLeftFront] = speed;
-	motor[driveLeftBack] = speed;
+					motor[driveLeftFront] = speed;
+					motor[driveLeftBack] = speed;
 }
 
 
 
 void setRightDrive(int speed)
 {
-	motor[driveRightFront] = speed;
+  motor[driveRightFront] = speed;
 	motor[driveRightBack] = speed;
 }
 
@@ -49,13 +47,13 @@ void setRightDrive(int speed)
 
 void lift(int speed)
 {
-#warning "motor[LiftMotors] = speed; has not been set"
+  #warning "motor[LiftMotors] = speed; has not been set"
 }
 
 
 
 void drive(int rightSpeed, int leftSpeed)
 {
-	setRightDrive(rightSpeed);
-	setLeftDrive(leftSpeed);
+  setRightDrive(rightSpeed);
+  setLeftDrive(leftSpeed);
 }

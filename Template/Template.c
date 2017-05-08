@@ -31,7 +31,7 @@
 #include "Vex_Competition_Includes.c"
 
 
-#include "functions.h";
+#include "function.h";
 #include "LCD.h";
 
 int autonomousChoice = 0;

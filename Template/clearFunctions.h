@@ -6,8 +6,6 @@ void clearGyro()
 	SensorValue(gyro) = 0;
 }
 
-
-
 void clearDrive()
 {
 	nMotorEncoder[driveLeftBack] = 0;
@@ -15,8 +13,6 @@ void clearDrive()
 	SensorValue[rightEncoder] = 0;
 	SensorValue[leftEncoder] = 0;
 }
-
-
 
 void clearLift()
 {
@@ -29,33 +25,4 @@ void clearAllEncoder()
 {
 	clearDrive();
 	clearLift();
-}
-
-void setLeftDrive(int speed)
-{
-	motor[driveLeftFront] = speed;
-	motor[driveLeftBack] = speed;
-}
-
-
-
-void setRightDrive(int speed)
-{
-	motor[driveRightFront] = speed;
-	motor[driveRightBack] = speed;
-}
-
-
-
-void lift(int speed)
-{
-#warning "motor[LiftMotors] = speed; has not been set"
-}
-
-
-
-void drive(int rightSpeed, int leftSpeed)
-{
-	setRightDrive(rightSpeed);
-	setLeftDrive(leftSpeed);
 }
