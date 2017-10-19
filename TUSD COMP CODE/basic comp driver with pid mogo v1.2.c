@@ -25,8 +25,8 @@ int clawDirection = 1; // 1 is open -1 is close
 
 #define potDiff 1200
 
-#define potR (sensorValue[potRight]+potDiff)
-#define potL (sensorValue[potLeft])
+#define potR (SensorValue[potRight]+potDiff)
+#define potL (SensorValue[potLeft])
 
 bool mogoIsFront = false;
 
@@ -184,7 +184,7 @@ else
 task mogoPID()
 {
 	PID mogoController;
-	initPID(mogoController, 0.12, 0.0, 0.12);
+	initPID(mogoController, 0.12, 0.0, 0.17);
 	while(true)
 	{
 		int mogoPowerR = mogoPIDCalculation(mogoPosTarget, mogoController, potR);
