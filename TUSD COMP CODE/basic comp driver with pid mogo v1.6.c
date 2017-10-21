@@ -23,7 +23,8 @@ int clawDirection = 1; // 1 is open -1 is close
 
 
 //Mogo Posititions
-const int mogoPos[9] = {350, 1790, 1790, 1890, 2040, 2190, 2590, 2790, 2990}
+////////////////////////down   1    2      3    4      5    6     7      8
+const int mogoPos[9] = {350, 1690, 1690, 1650, 1900, 2093, 2403, 2670, 2870}
 #define zeroM 350
 #define oneM (bottom + 1300),
 #define twoM (bottom + 1400)
@@ -35,7 +36,8 @@ const int mogoPos[9] = {350, 1790, 1790, 1890, 2040, 2190, 2590, 2790, 2990}
 #define eightM (bottom + 2700)}
 
 //Arm Postitions
-const int armPos[9] = {0, 400, 400, 400, 380, 380, 350, 350, 350}
+/////////////////////
+const int armPos[9] = {0, 450, 433, 413, 412, 393, 380, 380, 350}
 #define zeroA 0
 #define oneA 0
 #define twoA 0
@@ -135,7 +137,7 @@ task clawDrive()
 	armPosTarget = 0;
 	while(1)
 	{
-		if(SensorValue[coneIn] == 0 && vexRT[Btn6U] == 0)
+		if(vexRT[Btn5U] == 0)
 		{
 			if(SensorValue[clawOpen] == 0)
 				powClaw(-127);
@@ -147,8 +149,9 @@ task clawDrive()
 			powClaw(50);
 			wait1Msec(100);
 			go2Stack();
-			wait1Msec(100);
+			wait1Msec(200);
 			powClaw(-90);
+			wait1Msec(300);
 			armPosTarget = armPos[0];
 			while(SensorValue[liftDown] == 0)
 			{
@@ -345,7 +348,7 @@ int armPIDCalculation(
 task armPID()
 {
 	PID armController;
-	initPID(armController, 0.3, 0.0, 0.05);
+	initPID(armController, 0.3, 0.0, 0.2);
 	while(true)
 	{
 		int armPower = armPIDCalculation(armPosTarget, armController);
@@ -424,7 +427,7 @@ task usercontrol()
 
 startTask(mogoPID);
 startTask(clawDrive);
-startTask(armPID);
+//startTask(armPID);
   while (true)
   {
   	if(mogoIsFront)
@@ -435,7 +438,7 @@ startTask(armPID);
 		 if(vexRT[Btn7L] == 1)
 		 	mogoIsFront = !mogoIsFront;
 
-	//	liftArm(15+(127*vexRT[Btn6D])+(-90*vexRT[Btn6U]));
+	liftArm(15+(127*vexRT[Btn6D])+(-90*vexRT[Btn6U]));
 
   	/*if(vexRT[Btn5D] == 1 && !(press==vexRT[Btn5D]))
   		intr++;
@@ -446,15 +449,15 @@ startTask(armPID);
   		intr = 0;
 		else if(vexRT[Btn8R] == 1)
 			intr = 0;*/
-
-			if(vexRT[Btn5U] == 1 && !(pressMU==vexRT[Btn5U]))
+			/*
+			if(vexRT[Btn6U] == 1 && !(pressMU==vexRT[Btn6U]))
 			{
 				stopTask(mogoPID);
 				liftMogo(90, 90);
 				mogoPosTarget = getPot();
 				isMove = true;
 			}
-			else if(vexRT[Btn5D] == 1 && !(pressMD==vexRT[Btn5D]))
+			else if(vexRT[Btn6D] == 1 && !(pressMD==vexRT[Btn6D]))
 			{
 				stopTask(mogoPID);
 				liftMogo(-90, -90);
@@ -486,10 +489,21 @@ startTask(armPID);
   	else if (intr == 6)
   		mogoPosTarget = eight;
 */
+/*
 	if(SensorValue[liftDown] == 1)
 		clearLiftEnc();
-
-
+if(SensorValue[Btn6D] == 1)
+{
+	stopTask(armPID);
+	while(SensorValue[liftDown] == 0)
+	{
+		liftArm(-70);
+	}
+	armPosTarget = armPos[0];
+	clearLiftEnc();
+	startTask(armPID);
+}
+		*/
   	/*if(vexRT[Btn5U] ==1 && !(clawPress==vexRT[Btn5U]))
   	{
   		if(clawDirection ==1)
