@@ -24,7 +24,7 @@ int clawDirection = 1; // 1 is open -1 is close
 
 //Mogo Posititions
 ////////////////////////down   1    2      3    4      5    6     7      8
-const int mogoPos[9] = {350, 1690, 1690, 1650, 1900, 2093, 2403, 2670, 2870}
+const int mogoPos[9] = {350, 1690, 1690, 1650, 1900, 2093, 2403, 2750, 2870};
 #define zeroM 350
 #define oneM (bottom + 1300),
 #define twoM (bottom + 1400)
@@ -35,9 +35,11 @@ const int mogoPos[9] = {350, 1690, 1690, 1650, 1900, 2093, 2403, 2670, 2870}
 #define sevenM (bottom + 2500)
 #define eightM (bottom + 2700)}
 
+
+
 //Arm Postitions
 /////////////////////
-const int armPos[9] = {0, 450, 433, 413, 412, 393, 380, 380, 350}
+const int armPos[9] = {0, 450, 433, 413, 412, 393, 380, 350, 350}
 #define zeroA 0
 #define oneA 0
 #define twoA 0
@@ -47,6 +49,8 @@ const int armPos[9] = {0, 450, 433, 413, 412, 393, 380, 380, 350}
 #define sixA 0
 #define sevenA 0
 #define eightA 0
+
+#define driverLoad 200
 
 #define potBand 50
 
@@ -59,7 +63,7 @@ const int armPos[9] = {0, 450, 433, 413, 412, 393, 380, 380, 350}
 bool isMove = true;
 bool mogoIsFront = false;
 
-int mogoPosTarget = zeroM;
+int mogoPosTarget = mogoPos[0];
 int armPosTarget= 0;
 
 int coneCount = 1; // how many cones we jave
@@ -82,44 +86,44 @@ bool rest = false;
 /*---------------------------------------------------------------------------*/
 void drive(int powerL, int powerR)
 {
-	motor[driveBackLeft] = motor[driveFrontLeft] = powerL;
-	motor[driveBackRight] = motor[driveFrontRight] = powerR;
+motor[driveBackLeft] = motor[driveFrontLeft] = powerL;
+motor[driveBackRight] = motor[driveFrontRight] = powerR;
 }
 
 void liftMogo (int powerL, int powerR)
 {
-	motor[mogoleft] = powerL;
-	motor[mogoRight] = powerR;
+motor[mogoleft] = powerL;
+motor[mogoRight] = powerR;
 }
 
 void liftArm(int power)
 {
-	motor[liftLeft] = motor[liftRight] = power;
+motor[liftLeft] = motor[liftRight] = power;
 }
 
 void powClaw(int power)
 {
-	motor[claw] = power;
+motor[claw] = power;
 }
 
 int getPot()
 {
-	if(potL < 290 && potL > 100)
-		return potR;
-	if(potR < 290 && potR > 100)
-		return potL;
-	return ((potL+potR)/2);
+if(potL < 290 && potL > 100)
+	return potR;
+if(potR < 290 && potR > 100)
+	return potL;
+return ((potL+potR)/2);
 }
 
 int getLiftEnc()
 {
-	return (-nMotorEncoder[liftLeft]-nMotorEncoder[liftRight])/2;
+return (-nMotorEncoder[liftLeft]-nMotorEncoder[liftRight])/2;
 }
 
 void clearLiftEnc()
 {
-	nMotorEncoder[liftLeft] = 0;
-	nMotorEncoder[liftRight] = 0
+nMotorEncoder[liftLeft] = 0;
+nMotorEncoder[liftRight] = 0
 }
 
 void go2Stack()
@@ -134,93 +138,157 @@ while(getLiftEnc() < armPosTarget )
 }
 }
 
-task clawDrive()
+task mogo()
 {
-	armPosTarget = 0;
-	while(1)
+while(1)
+{
+	if(vexRT[Btn7L] ==1 && !(dec==vexRT[Btn7L]))
 	{
-		if(vexRT[Btn5U] == 0)
-		{
-			if(SensorValue[clawOpen] == 0)
-				powClaw(-127);
-			else
-				powClaw(-10);
-		}
-		else
-		{
-			powClaw(50);
-			wait1Msec(100);
-			go2Stack();
-			wait1Msec(50);
-			powClaw(-90);
-			wait1Msec(50);
-			armPosTarget = armPos[0];
-			while(SensorValue[liftDown] == 0)
-			{
-			}
-			wait1Msec(100);
-			coneCount++;
-			mogoPosTarget = mogoPos[coneCount];
-			wait1Msec(100);
-		}
+		coneCount--;
 	}
+	else if(vexRT[Btn7R] ==1 && !(inc==vexRT[Btn7R]))
+	{
+		coneCount++;
+	}
+	else if(coneCount == -1)
+	{
+		coneCount = 8;
+	}
+	else if(coneCount == 9)
+	{
+		coneCount = 0;
+	}
+	else if(vexRT[Btn7D] ==1 && !(rest==vexRT[Btn7D]))
+	{
+		coneCount = 0;
+	}
+	rest = vexRT[Btn7D];
+	dec = vexRT[Btn7L];
+	inc = vexRT[Btn7R];
+	delay(10);
+}
 }
 
+task clawDrive()
+{
+armPosTarget = 0;
+while(1)
+{
+	if(vexRT[Btn5U] == 0)
+	{
+		if(SensorValue[clawOpen] == 0)
+			powClaw(-127);
+		else
+			powClaw(-10);
+	}
+	else
+	{
+		powClaw(50);
+		wait1Msec(100);
+		go2Stack();
+		wait1Msec(200);
+		powClaw(-90);
+		wait1Msec(50);
+		coneCount++;
+		if(coneCount > 8 || coneCount <0)
+		{
+			coneCount=8;
+		}
+		mogoPosTarget = mogoPos[coneCount];
+		armPosTarget = armPos[0];
+		while(SensorValue[liftDown] == 0)
+		{
+		}
+		wait1Msec(100);
 
+
+		wait1Msec(100);
+	}
+}
+}
+
+task driverLoads()
+{
+armPosTarget = driverLoad;
+while(1)
+{
+	if(vexRT[Btn5U] == 0)
+	{
+		if(SensorValue[clawOpen] == 0)
+			powClaw(-127);
+		else
+			powClaw(-10);
+	}
+	else
+	{
+		powClaw(50);
+		wait1Msec(100);
+		go2Stack();
+		wait1Msec(50);
+		powClaw(-90);
+		wait1Msec(50);
+		armPosTarget = driverLoad;
+		wait1Msec(100);
+		coneCount++;
+		mogoPosTarget = mogoPos[coneCount];
+		wait1Msec(100);
+	}
+}
+}
 
 
 
 typedef struct{
 
-	float kP, kI, kD;
+float kP, kI, kD;
 
-	int Error, Integral, Derivitive, prevError, integralLimit;
+int Error, Integral, Derivitive, prevError, integralLimit;
 
-	int maxIntegral, maxOutput, minSpeed;
+int maxIntegral, maxOutput, minSpeed;
 
 } PID;
 
 void resetPID(
-	PID controller)
+PID controller)
 {
 
-	controller.Error = 0;
-	controller.Integral = 0;
-	controller.Derivitive = 0;
-	controller.prevError = 0;
+controller.Error = 0;
+controller.Integral = 0;
+controller.Derivitive = 0;
+controller.prevError = 0;
 
 }
 
 void initPID(
-	PID controller,
-	float kP,
-	float kI,
-	float kD)
+PID controller,
+float kP,
+float kI,
+float kD)
 {
 
-	controller.kP = kP;
-	controller.kI = kI;
-	controller.kD = kD;
+controller.kP = kP;
+controller.kI = kI;
+controller.kD = kD;
 
-	controller.maxIntegral = 0;
-	controller.maxOutput = 0;
-	controller.minSpeed = 0;
-	controller.integralLimit = 100;
+controller.maxIntegral = 0;
+controller.maxOutput = 0;
+controller.minSpeed = 0;
+controller.integralLimit = 100;
 
-	resetPID(controller);
+resetPID(controller);
 
 }
 
 /////////////////////////////////////////////////////////////////////////MOGO PID///////////////////////////////////////////////////
 
 int mogoPIDCalculation(
-	int targetMogoPos,
-	PID controller,
-	int sensorVal
-	)
+int targetMogoPos,
+PID controller,
+int sensorVal
+)
 {
-	if(SensorVal > 280)
-	{
+if(SensorVal > 280)
+{
 
 
 
@@ -228,8 +296,8 @@ int mogoPIDCalculation(
 
 	if(controller.integralLimit > abs(controller.Error) &&
 		controller.integralLimit != 0 &&
-		controller.Integral < 10000)
-		controller.Integral += controller.Error;
+	controller.Integral < 10000)
+	controller.Integral += controller.Error;
 	else
 		controller.Integral = 0;
 
@@ -247,22 +315,22 @@ int mogoPIDCalculation(
 	controller.prevError = controller.Error;
 
 	int returnValue = ((int)abs((controller.Error*controller.kP +
-							controller.Integral*controller.kI -
-							controller.Derivitive*controller.kD)) > controller.minSpeed)
-										?
-										(int)(controller.Error*controller.kP +
-							controller.Integral*controller.kI -
-							controller.Derivitive*controller.kD)
-										:
-										controller.minSpeed*sgn((int)(controller.Error*controller.kP + controller.Integral*controller.kI - controller.Derivitive*controller.kD));
+	controller.Integral*controller.kI -
+	controller.Derivitive*controller.kD)) > controller.minSpeed)
+	?
+	(int)(controller.Error*controller.kP +
+	controller.Integral*controller.kI -
+	controller.Derivitive*controller.kD)
+	:
+	controller.minSpeed*sgn((int)(controller.Error*controller.kP + controller.Integral*controller.kI - controller.Derivitive*controller.kD));
 
 	if (controller.maxOutput != 0)
 	{
-    if (returnValue > controller.maxOutput)
-      returnValue = controller.maxOutput;
+		if (returnValue > controller.maxOutput)
+			returnValue = controller.maxOutput;
 
-    if (returnValue < -controller.maxOutput)
-      returnValue = -controller.maxOutput;
+		if (returnValue < -controller.maxOutput)
+			returnValue = -controller.maxOutput;
 	}
 	return returnValue;
 }
@@ -272,92 +340,95 @@ else
 
 task mogoPID()
 {
-	PID mogoController;
-	initPID(mogoController, 0.12, 0.0, 0.17);
-	while(true)
-	{
-		int mogoPowerR = mogoPIDCalculation(mogoPosTarget, mogoController, potR);
-		int mogoPowerL = mogoPIDCalculation(mogoPosTarget, mogoController, potL);
+PID mogoController;
+initPID(mogoController, 0.12, 0.0, 0.17);
+while(true)
+{
+	int mogoPowerR = mogoPIDCalculation(mogoPosTarget, mogoController, potR);
+	int mogoPowerL = mogoPIDCalculation(mogoPosTarget, mogoController, potL);
 
 
 	//	if(potL > potR-potBand)
-		//	liftMogo(mogoPower, 5*mogoPower);
-		//else if(potL < potR+potBand)
-		//	liftMogo(5*mogoPower, mogoPower);
+	//	liftMogo(mogoPower, 5*mogoPower);
+	//else if(potL < potR+potBand)
+	//	liftMogo(5*mogoPower, mogoPower);
 	//	else
-		if(mogoPowerR == -1000000)
-			liftMogo(mogoPowerL, mogoPowerL);
-		else if(mogoPowerL == -1000000)
-			liftMogo(mogoPowerR, mogoPowerR);
-		else
-			liftMogo(mogoPowerR, mogoPowerL);
+	if(mogoPowerR == -1000000)
+		liftMogo(mogoPowerL, mogoPowerL);
+	else if(mogoPowerL == -1000000)
+		liftMogo(mogoPowerR, mogoPowerR);
+	else
+		liftMogo(mogoPowerR, mogoPowerL);
 
-		writeDebugStreamLine("Mogo Target: %d MogoPowerR: %f MogoPowerL: %f getPot: %d getPotLeft: %d getPotRight: %d", mogoPosTarget, mogoPowerR,mogoPowerL, getPot(), potL, potR);
-		delay(10);
-	}
+	//writeDebugStreamLine("Mogo Target: %d MogoPowerR: %f MogoPowerL: %f getPot: %d getPotLeft: %d getPotRight: %d", mogoPosTarget, mogoPowerR,mogoPowerL, getPot(), potL, potR);
+	delay(10);
+}
 }
 ////////////////////////////////////////////////MOGO PID////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////LIFT PID ////////////////////////////////////////////////////////
 int armPIDCalculation(
-	int targetArmPos,
-	PID controller)
+int targetArmPos,
+PID controller)
 {
 
-	controller.Error = targetArmPos - getLiftEnc();
+controller.Error = targetArmPos - getLiftEnc();
 
-	if(controller.integralLimit > abs(controller.Error) &&
-		controller.integralLimit != 0 &&
-		controller.Integral < 10000)
-		controller.Integral += controller.Error;
-	else
-		controller.Integral = 0;
+if(controller.integralLimit > abs(controller.Error) &&
+	controller.integralLimit != 0 &&
+controller.Integral < 10000)
+controller.Integral += controller.Error;
+else
+	controller.Integral = 0;
 
 
-	if (controller.maxIntegral != 0)
-	{
-		if (controller.Integral > controller.maxIntegral)
-			controller.Integral = controller.maxIntegral;
+if (controller.maxIntegral != 0)
+{
+	if (controller.Integral > controller.maxIntegral)
+		controller.Integral = controller.maxIntegral;
 
-		if (controller.Integral < -controller.maxIntegral)
-			controller.Integral = -controller.maxIntegral;
-	}
+	if (controller.Integral < -controller.maxIntegral)
+		controller.Integral = -controller.maxIntegral;
+}
 
-	controller.Derivitive = controller.Error - controller.prevError;
-	controller.prevError = controller.Error;
+controller.Derivitive = controller.Error - controller.prevError;
+controller.prevError = controller.Error;
 
-	int returnValue = ((int)abs((controller.Error*controller.kP +
-							controller.Integral*controller.kI -
-							controller.Derivitive*controller.kD)) > controller.minSpeed)
-										?
-										(int)(controller.Error*controller.kP +
-							controller.Integral*controller.kI -
-							controller.Derivitive*controller.kD)
-										:
-										controller.minSpeed*sgn((int)(controller.Error*controller.kP + controller.Integral*controller.kI - controller.Derivitive*controller.kD));
+int returnValue = ((int)abs((controller.Error*controller.kP +
+controller.Integral*controller.kI -
+controller.Derivitive*controller.kD)) > controller.minSpeed)
+?
+(int)(controller.Error*controller.kP +
+controller.Integral*controller.kI -
+controller.Derivitive*controller.kD)
+:
+controller.minSpeed*sgn((int)(controller.Error*controller.kP + controller.Integral*controller.kI - controller.Derivitive*controller.kD));
 
-	if (controller.maxOutput != 0)
-	{
-    if (returnValue > controller.maxOutput)
-      returnValue = controller.maxOutput;
+if (controller.maxOutput != 0)
+{
+	if (returnValue > controller.maxOutput)
+		returnValue = controller.maxOutput;
 
-    if (returnValue < -controller.maxOutput)
-      returnValue = -controller.maxOutput;
-	}
-	return returnValue;
+	if (returnValue < -controller.maxOutput)
+		returnValue = -controller.maxOutput;
+}
+return returnValue;
 }
 
 task armPID()
 {
-	PID armController;
-	initPID(armController, 0.25, 0.0, 0.4);
-	while(true)
-	{
-		int armPower = armPIDCalculation(armPosTarget, armController);
+PID armController;
+initPID(armController, 0.29, 0.0, 1.5);
+while(true)
+{
+	int armPower = armPIDCalculation(armPosTarget, armController);
+	if(armPosTarget == armPos[0] && abs(armPower)< 15)
+		liftArm(-armPower+10);
+	else
 		liftArm(-armPower);
-		writeDebugStreamLine("liftPid: Target: %d Power: %f getEnc: %d leftEnc: %d rightEnc: %d", armPosTarget, armPower, getLiftEnc(), nMotorEncoder[liftLeft] , nMotorEncoder[liftRight]);
-		delay(10);
-	}
+	writeDebugStreamLine("liftPid: Target: %d Power: %f getEnc: %d leftEnc: %d rightEnc: %d", armPosTarget, armPower, getLiftEnc(), nMotorEncoder[liftLeft] , nMotorEncoder[liftRight]);
+	delay(10);
+}
 }
 ///////////////////////////////////////////////////////LIFT PID///////////////////////////////////////////////////////////////
 
@@ -384,18 +455,18 @@ task armPID()
 
 void pre_auton()
 {
-  // Set bStopTasksBetweenModes to false if you want to keep user created tasks
-  // running between Autonomous and Driver controlled modes. You will need to
-  // manage all user created tasks if set to false.
-  bStopTasksBetweenModes = true;
+// Set bStopTasksBetweenModes to false if you want to keep user created tasks
+// running between Autonomous and Driver controlled modes. You will need to
+// manage all user created tasks if set to false.
+bStopTasksBetweenModes = true;
 
-	// Set bDisplayCompetitionStatusOnLcd to false if you don't want the LCD
-	// used by the competition include file, for example, you might want
-	// to display your team name on the LCD in this function.
-	// bDisplayCompetitionStatusOnLcd = false;
+// Set bDisplayCompetitionStatusOnLcd to false if you don't want the LCD
+// used by the competition include file, for example, you might want
+// to display your team name on the LCD in this function.
+// bDisplayCompetitionStatusOnLcd = false;
 
-  // All activities that occur before the competition starts
-  // Example: clearing encoders, setting servo positions, ...
+// All activities that occur before the competition starts
+// Example: clearing encoders, setting servo positions, ...
 }
 
 /*---------------------------------------------------------------------------*/
@@ -425,114 +496,87 @@ task autonomous()
 
 task usercontrol()
 {
-  // User control code here, inside the loop
+// User control code here, inside the loop
 
 startTask(mogoPID);
 startTask(clawDrive);
 startTask(armPID);
-  while (true)
-  {
-  	if(mogoIsFront)
-  	 drive(vexRT[Ch3], vexRT[Ch2]);
-		else
-		 drive(-vexRT[Ch2], -vexRT[Ch3]);
+startTask(mogo);
+while (true)
+{
+	if(mogoIsFront)
+		drive(vexRT[Ch3], vexRT[Ch2]);
+	else
+		drive(-vexRT[Ch2], -vexRT[Ch3]);
 
-		 if(vexRT[Btn7L] == 1)
-		 	mogoIsFront = !mogoIsFront;
 
 	//liftArm(15+(127*vexRT[Btn6D])+(-90*vexRT[Btn6U]));
 
-  	/*if(vexRT[Btn5D] == 1 && !(press==vexRT[Btn5D]))
-  		intr++;
+	/*if(vexRT[Btn5D] == 1 && !(press==vexRT[Btn5D]))
+	intr++;
 
-  	press = vexRT[Btn5D];
+	press = vexRT[Btn5D];
 
-  	if(intr > 6)
-  		intr = 0;
-		else if(vexRT[Btn8R] == 1)
-			intr = 0;*/
+	if(intr > 6)
+	intr = 0;
+	else if(vexRT[Btn8R] == 1)
+	intr = 0;*/
 
-			if(vexRT[Btn6U] == 1 && !(pressMU==vexRT[Btn6U]))
-			{
-				stopTask(mogoPID);
-				liftMogo(90, 90);
-				mogoPosTarget = getPot();
-				isMove = true;
-			}
-			else if(vexRT[Btn6D] == 1 && !(pressMD==vexRT[Btn6D]))
-			{
-				stopTask(mogoPID);
-				liftMogo(-90, -90);
-				mogoPosTarget = getPot();
-				isMove = true;
-			}
-			else
-			{
-				if(isMove)
-				{
-					startTask(mogoPID);
-					isMove = false;
-				}
-			}
+	if(vexRT[Btn6U] == 1 && !(pressMU==vexRT[Btn6U]))
+	{
+		stopTask(mogoPID);
+		liftMogo(90, 90);
+		mogoPosTarget = getPot();
+		isMove = true;
+	}
+	else if(vexRT[Btn6D] == 1 && !(pressMD==vexRT[Btn6D]))
+	{
+		stopTask(mogoPID);
+		liftMogo(-90, -90);
+		mogoPosTarget = getPot();
+		isMove = true;
+	}
+	else
+	{
+		if(isMove)
+		{
+			startTask(mogoPID);
+			isMove = false;
+		}
+	}
 
-		/*
-  	if (intr == 0)
-  		mogoPosTarget = bottom;
-  	else if (intr == 1)
-  		mogoPosTarget = first;
-  	else if (intr == 2)
-  		mogoPosTarget = third;
-  	else if (intr == 3)
-  		mogoPosTarget = five;
-  	else if (intr == 4)
-  		mogoPosTarget = six;
-  	else if (intr == 5)
-  		mogoPosTarget = seven;
-  	else if (intr == 6)
-  		mogoPosTarget = eight;
-*/
+
 
 	if(SensorValue[liftDown] == 1)
 		clearLiftEnc();
-if(SensorValue[Btn8D] == 1)
-{
-	stopTask(armPID);
-	while(SensorValue[liftDown] == 0)
+
+	if(SensorValue[Btn8D] == 1)
 	{
-		liftArm(-70);
+		stopTask(armPID);
+		while(SensorValue[liftDown] == 0)
+		{
+			liftArm(-70);
+		}
+		armPosTarget = armPos[0];
+		clearLiftEnc();
+		//startTask(armPID);
 	}
-	armPosTarget = armPos[0];
-	clearLiftEnc();
+
+
+	/*
+	if(SensorValue[Btn8U] == 1)
+	{
+	stopTask(armPID);
+	startTask(driverLoads);
+	}
+	else if(SensorValue[Btn8D] == 1)
+	{
+	stopTask(driverLoads);
 	startTask(armPID);
+	}
+	*/
+
+
+
 }
-
-
-
-  	if(vexRT[Btn7L] ==1 && !(dec==vexRT[Btn7L]))
-  	{
-  		coneCount--;
-  	}
-
- 		else if(vexRT[Btn7R] ==1 && !(inc==vexRT[Btn7R]))
-  	{
-  		coneCount++;
-  	}
-  	else if(coneCount == -1)
-  	{
-  		coneCount = 8;
-  	}
-  	else if(coneCount == 10)
-  	{
-  		coneCount = 0;
-  	}
- 		else if(vexRT[Btn7D] ==1 && !(rest==vexRT[Btn7D]))
-  	{
-  		coneCount = 0;
-  	}
- 		rest = vexRT[Btn7D];
- 		dec = vexRT[Btn7L];
-		inc = vexRT[Btn7R];
-
-
-  }
 }
