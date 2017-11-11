@@ -6,6 +6,7 @@
 #pragma config(Sensor, dgtl3,  clawOpen,       sensorTouch)
 #pragma config(Sensor, dgtl5,  encLeft,        sensorQuadEncoder)
 #pragma config(Sensor, dgtl7,  liftDown,       sensorTouch)
+#pragma config(Sensor, dgtl8,  mogoDown,       sensorTouch)
 #pragma config(Sensor, I2C_1,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Motor,  port1,           driveFrontLeft, tmotorVex393TurboSpeed_HBridge, openLoop)
@@ -13,7 +14,7 @@
 #pragma config(Motor,  port3,           driveBackLeft, tmotorVex393TurboSpeed_MC29, openLoop)
 #pragma config(Motor,  port4,           liftRight,     tmotorVex393_MC29, openLoop, encoderPort, I2C_2)
 #pragma config(Motor,  port6,           liftLeft,      tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_1)
-#pragma config(Motor,  port7,           claw,          tmotorVex393_MC29, openLoop, reversed)
+#pragma config(Motor,  port7,           claw,          tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port8,           driveBackRight, tmotorVex393TurboSpeed_MC29, openLoop, reversed)
 #pragma config(Motor,  port9,           mogoRight,     tmotorVex393_MC29, openLoop, reversed)
 #pragma config(Motor,  port10,          driveFrontRight, tmotorVex393TurboSpeed_HBridge, openLoop, reversed)
@@ -21,7 +22,7 @@
 
 //Mogo Posititions
 ////////////////////////down   1    2      3    4      5    6     7      8
-const int mogoPos[9] = {315, 1660, 1660, 1640, 1820, 2050, 2350, 2770, 2840};
+const int mogoPos[9] = {315, 1530, 1540, 1640, 1600, 1790, 2080, 2450, 2750};
 #define zeroM 350
 #define oneM (bottom + 1300),
 #define twoM (bottom + 1400)
@@ -36,7 +37,7 @@ const int mogoPos[9] = {315, 1660, 1660, 1640, 1820, 2050, 2350, 2770, 2840};
 
 //Arm Postitions
 /////////////////////
-const int armPos[9] = {-75, 401, 400, 400, 360, 355, 370, 330, 330};
+const int armPos[9] = {0, 400, 395, 360, 350, 350, 340, 335, 310};
 #define zeroA 0
 #define oneA 0
 #define twoA 0
@@ -47,7 +48,10 @@ const int armPos[9] = {-75, 401, 400, 400, 360, 355, 370, 330, 330};
 #define sevenA 0
 #define eightA 0
 
-#define driverLoad 200
+int bottom = armPos[0];
+#define driverLoadArmPos 150
+#define stationaryArmPos 290
+#define topArmPos 300
 
 #define potBand 50
 
@@ -65,7 +69,7 @@ bool isMove = true;
 bool mogoIsFront = false;
 bool breaker = false;
 bool loopIsRunning = false;
-
+bool doneWithCone = false;
 
 int mogoPosTarget = mogoPos[0];
 int armPosTarget= armPos[0];
@@ -81,6 +85,7 @@ bool pressMD = false;
 bool inc = false;
 bool dec = false;
 bool rest = false;
+bool isMoveArm = false;
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
@@ -125,7 +130,7 @@ nMotorEncoder[liftRight] = 0;
 
 void clearGyro()
 {
-	getHeading = 0;
+getHeading = 0;
 }
 
 int getDriveEnc(){
@@ -140,6 +145,7 @@ SensorValue[encRight] = 0;
 void go2Stack(){
 
 mogoPosTarget = mogoPos[coneCount];
+armPosTarget = stationaryArmPos;
 
 while( mogoPosTarget > getPot()+100 ){}
 
@@ -157,11 +163,11 @@ while(1){
 	else if(vexRT[Btn7R] ==1 && !(inc==vexRT[Btn7R])){
 		coneCount++;
 	}
-	else if(coneCount == -1){
-		coneCount = 8;
+	else if(coneCount == 1){
+		coneCount = 1;
 	}
 	else if(coneCount == 9){
-		coneCount = 1;
+		coneCount = 8;
 	}
 	else if(vexRT[Btn7D] ==1 && !(rest==vexRT[Btn7D])){
 		coneCount = 1;
@@ -180,36 +186,65 @@ while(1){
 		loopIsRunning = false;
 		if(vexRT[Btn5U] == 0){
 			if(SensorValue[clawOpen] == 0)
-				powClaw(-80);
+				powClaw(-127);
 			else
 				powClaw(-15);
+			if(vexRT[Btn5D] ==1 && vexRT[Btn6D] ==1)
+			{
+				powClaw(127);
+				wait1Msec(100);
+				powClaw(30);
+				while(vexRT[Btn5D] == 1)
+				{
+				}
+				armPosTarget = stationaryArmPos;
+				while(vexRT[Btn5D] == 0)
+				{
+				}
+				while(vexRT[Btn5D] == 1)
+				{
+				}
+				powClaw(-127);
+				wait1Msec(100);
+				powClaw(-10);
+				while(vexRT[Btn5D] == 0)
+				{
+				}
+				while(vexRT[Btn5D] == 1)
+				{
+				}
+				armPosTarget = armPos[0];
+
+			}
 		}
 		else{
 			loopIsRunning = true;
 			while(!breaker && loopIsRunning){
-				powClaw(60);
+				powClaw(127);
 				wait1Msec(100);
-				go2Stack();
-				wait1Msec(200);
-				while(vexRT[Btn5U] == 0)
+				powClaw(30);
+				while(vexRT[Btn5U] == 1 && vexRT[Btn5D] == 0)
 				{
-
 				}
-				powClaw(-80);
-				wait1Msec(100);
+				if(vexRT[Btn5D] == 1)
+					break;
+				go2Stack();
+				while(vexRT[Btn5D] == 1)	{}
+				while(SensorValue[clawOpen] == 0)
+					powClaw(-127);
+				powClaw(-10);
 				coneCount++;
 				if(coneCount > 8 || coneCount <0){
 					coneCount=8;
 				}
 				mogoPosTarget = mogoPos[coneCount];
-
-				armPosTarget = 20;
-				while(SensorValue[liftDown] == 0 && vexRT[Btn5U] == 0 ){
-				}
+				wait1Msec(200);
+				armPosTarget = bottom+90;
+				while(SensorValue[liftDown] == 0 && vexRT[Btn5D] == 0 && armPosTarget <200) {}
 				wait1Msec(100);
 				loopIsRunning = false;
 			}
-			armPosTarget = armPos[0];
+			armPosTarget = bottom;
 		}
 	}
 }
@@ -217,7 +252,7 @@ while(1){
 
 task driverLoads()
 {
-armPosTarget = driverLoad;
+armPosTarget = driverLoadArmPos;
 while(1)
 {
 	if(vexRT[Btn5U] == 0)
@@ -235,7 +270,7 @@ while(1)
 		wait1Msec(50);
 		powClaw(-90);
 		wait1Msec(50);
-		armPosTarget = driverLoad;
+		armPosTarget = driverLoadArmPos;
 		wait1Msec(100);
 		coneCount++;
 		mogoPosTarget = mogoPos[coneCount];
@@ -287,7 +322,7 @@ controller.kI = kI;
 controller.kD = kD;
 
 controller.maxIntegral = 0;
-controller.maxOutput = 0;
+controller.maxOutput = 127;
 controller.minSpeed = 0;
 controller.integralLimit = 100;
 
@@ -353,7 +388,7 @@ else
 task mogoPID()
 {
 PID mogoController;
-initPID(mogoController, 0.12, 0.0, 0.17);
+initPID(mogoController, 0.14, 0.0, 0.17);
 while(true)
 {
 	int mogoPowerR = mogoPIDCalculation(mogoPosTarget, mogoController, potR);
@@ -423,11 +458,14 @@ return returnValue;
 
 task armPID()
 {
-PID armControllerBegain, armControllerMiddle, armControllerEnd, armControllerDown;
-initPID(armControllerBegain, 0.26, 0.0, 0.7);
-initPID(armControllerMiddle, 0.29, 0.0, 0.4);
-initPID(armControllerEnd, 0.4, 0.0, 0.3);
-initPID(armControllerDown, 0.20, 0.0, 0.4);
+PID armControllerBegain, armControllerMiddle, armControllerEnd, armControllerDown, armControllerFine, armControllerDL, armControllerTopArm;
+initPID(armControllerBegain, 0.26, 0.0, 0.4);
+initPID(armControllerMiddle, 0.75, 0.0, 0.4);
+initPID(armControllerEnd, 0.65, 0.0, 0.4);
+initPID(armControllerDown, 0.2, 0.0, 0.4);
+initPID(armControllerTopArm, 0.9, 0.0, 0.3);
+initPID(armControllerFine, 1.0, 0.01, 0.4);
+initPID(armControllerDL, 0.2, 0.05, 0.4);
 //setMinSpeedPID(armController, -20);
 
 while(true)
@@ -435,30 +473,49 @@ while(true)
 	int armPowerL, armPowerR;
 	if(armPosTarget < 50)
 	{
-		 armPowerL = armPIDCalculation(armPosTarget, armControllerDown, -nMotorEncoder[liftLeft]);
-		 armPowerR = armPIDCalculation(armPosTarget, armControllerDown, -nMotorEncoder[liftRight]);
+		armPowerL = (armPIDCalculation(armPosTarget, armControllerDown, -nMotorEncoder[liftLeft]));
+		armPowerR = (armPIDCalculation(armPosTarget, armControllerDown, -nMotorEncoder[liftRight]));
 	}
-	else if(armPosTarget >= 50 && armPosTarget < armPos[3])
+	if(armPosTarget >= 50 && armPosTarget < driverLoadArmPos)
 	{
-		 armPowerL = armPIDCalculation(armPosTarget, armControllerEnd, -nMotorEncoder[liftLeft]);
-		 armPowerR = armPIDCalculation(armPosTarget, armControllerEnd, -nMotorEncoder[liftRight]);
+		armPowerL = armPIDCalculation(armPosTarget, armControllerDL, -nMotorEncoder[liftLeft]);
+		armPowerR = armPIDCalculation(armPosTarget, armControllerDL, -nMotorEncoder[liftRight]);
 	}
-	else if(armPosTarget >= 360 && armPosTarget <400)
+	else if(armPosTarget >= driverLoadArmPos+1 && armPosTarget < 300)
 	{
-		 armPowerL = armPIDCalculation(armPosTarget, armControllerMiddle, -nMotorEncoder[liftLeft]);
-		 armPowerR = armPIDCalculation(armPosTarget, armControllerMiddle, -nMotorEncoder[liftRight]);
+		armPowerL = armPIDCalculation(armPosTarget, armControllerFine, -nMotorEncoder[liftLeft]);
+		armPowerR = armPIDCalculation(armPosTarget, armControllerFine, -nMotorEncoder[liftRight]);
 	}
-	else if(armPosTarget >=401)
+	else if(armPosTarget == 300)
 	{
-		 armPowerL = armPIDCalculation(armPosTarget, armControllerBegain, -nMotorEncoder[liftLeft]);
-		 armPowerR = armPIDCalculation(armPosTarget, armControllerBegain, -nMotorEncoder[liftRight]);
+		armPowerL = armPIDCalculation(armPosTarget, armControllerTopArm, -nMotorEncoder[liftLeft]);
+		armPowerR = armPIDCalculation(armPosTarget, armControllerTopArm, -nMotorEncoder[liftRight]);
+	}
+	else if(armPosTarget >300 && armPosTarget < 360)
+	{
+		armPowerL = armPIDCalculation(armPosTarget, armControllerEnd, -nMotorEncoder[liftLeft]);
+		armPowerR = armPIDCalculation(armPosTarget, armControllerEnd, -nMotorEncoder[liftRight]);
+	}
+	else if(armPosTarget >= 360 && armPosTarget <420)
+	{
+		armPowerL = armPIDCalculation(armPosTarget, armControllerMiddle, -nMotorEncoder[liftLeft]);
+		armPowerR = armPIDCalculation(armPosTarget, armControllerMiddle, -nMotorEncoder[liftRight]);
+	}
+	else if(armPosTarget >=420)
+	{
+		armPowerL = armPIDCalculation(armPosTarget, armControllerBegain, -nMotorEncoder[liftLeft]);
+		armPowerR = armPIDCalculation(armPosTarget, armControllerBegain, -nMotorEncoder[liftRight]);
 	}
 	else
 	{
-		 armPowerL = armPIDCalculation(armPosTarget, armControllerMiddle, -nMotorEncoder[liftLeft]);
-		 armPowerR = armPIDCalculation(armPosTarget, armControllerMiddle, -nMotorEncoder[liftRight]);
+		armPowerL = armPIDCalculation(armPosTarget, armControllerMiddle, -nMotorEncoder[liftLeft]);
+		armPowerR = armPIDCalculation(armPosTarget, armControllerMiddle, -nMotorEncoder[liftRight]);
 	}
-	liftArm(-armPowerL, -armPowerR);
+
+	if(armPosTarget == armPos[0])
+		liftArm(-armPowerL+35, -armPowerR+35);
+	else
+		liftArm(-armPowerL, -armPowerR);
 	writeDebugStreamLine("liftPid: Target: %d PowerL: %d PowerR: %f leftEnc: %d rightEnc: %d", armPosTarget, armPowerL, armPowerR, -nMotorEncoder[liftLeft] , -nMotorEncoder[liftRight]);
 	delay(10);
 }
@@ -520,25 +577,25 @@ return returnValue;
 
 int turnToHeadingCalucation(int targetHeading, PID controller){
 
-	controller.Error = targetHeading - getHeading;
+controller.Error = targetHeading - getHeading;
 
-	if(abs(controller.Error) < 100){
-		controller.Integral += controller.Error;
-	}
+if(abs(controller.Error) < 100){
+	controller.Integral += controller.Error;
+}
 
-	if(controller.Error == 0 || abs(controller.Error) < 10){
-		controller.Integral = 0;
-	}
-	if(abs(controller.Error) < 150){
-		controller.Derivitive = controller.prevError - controller.error;
-		}else{
-		controller.Derivitive = 0;
-	}
+if(controller.Error == 0 || abs(controller.Error) < 10){
+	controller.Integral = 0;
+}
+if(abs(controller.Error) < 150){
+	controller.Derivitive = controller.prevError - controller.error;
+	}else{
+	controller.Derivitive = 0;
+}
 
-	controller.prevError = controller.error;
-	int returnValue = controller.Error * controller.kP + controller.Integral * controller.kI + controller.Derivitive * controller.kD;
+controller.prevError = controller.error;
+int returnValue = controller.Error * controller.kP + controller.Integral * controller.kI + controller.Derivitive * controller.kD;
 
-	return returnValue;
+return returnValue;
 }
 
 task drivePID()
@@ -564,22 +621,31 @@ while(true)
 
 task cone()
 {
-				powClaw(70);
-				wait1Msec(100);
-				go2Stack();
-				wait1Msec(200);
-				powClaw(-90);
-				wait1Msec(100);
-				coneCount++;
-				if(coneCount > 8 || coneCount <0){
-					coneCount=8;
-				}
-				mogoPosTarget = mogoPos[coneCount];
+powClaw(70);
+wait1Msec(100);
+go2Stack();
 
-				armPosTarget = armPos[0];
-				while(SensorValue[liftDown] == 0){
-				}
-				wait1Msec(100);
+powClaw(-127);
+while(SensorValue[clawOpen] == 0)
+{}
+
+powClaw(-10);
+coneCount++;
+if(coneCount > 8 || coneCount <0){
+	coneCount=8;
+}
+mogoPosTarget = mogoPos[coneCount];
+
+while(coneCount == 3 && !doneWithCone)
+{
+
+}
+
+wait1Msec(300);
+armPosTarget = armPos[0];
+while(SensorValue[liftDown] == 0){
+}
+wait1Msec(100);
 }
 
 
@@ -634,107 +700,12 @@ bStopTasksBetweenModes = true;
 
 task autonomous()
 {
-/*
-wait1Msec(100);
-motor[driveBackLeft] = 127;
-motor[driveBackRight] = 127;
-motor[driveFrontLeft] = 127;
-motor[driveFrontRight] = 127;
-wait1Msec(300);
-motor[driveBackLeft] = 0;
-motor[driveBackRight] = 0;
-motor[driveFrontLeft] = 0;
-motor[driveFrontRight] = 0;
-wait1Msec(100);
-liftArm(80);
-while(SensorValue[liftDown] == 0)
-{
-}
-liftArm(0);
-clearLiftEnc();
-startTask(mogoPID);
-
-
-mogoPosTarget = mogoPos[0];
-wait1Msec(1100);
-motor[driveBackLeft] = 127;
-motor[driveBackRight] = 127;
-motor[driveFrontLeft] = 127;
-motor[driveFrontRight] = 127;
-wait1Msec(250);
-motor[driveBackLeft] = 0;
-motor[driveBackRight] = 0;
-motor[driveFrontLeft] = 0;
-motor[driveFrontRight] = 0;
-wait1Msec(100);
-
-mogoPosTarget = mogoPos[1];
-wait1Msec(1000);
-
-motor[driveBackLeft] = -127;
-motor[driveBackRight] = -127;
-motor[driveFrontLeft] = -127;
-motor[driveFrontRight] = -127;
-wait1Msec(200);
-motor[driveBackLeft] = 0;
-motor[driveBackRight] = 0;
-motor[driveFrontLeft] = 0;
-motor[driveFrontRight] = 0;
-wait1Msec(500);
-
-motor[driveBackLeft] = 127;
-motor[driveBackRight] = -127;
-motor[driveFrontLeft] = 127;
-motor[driveFrontRight] = -127;
-wait1Msec(200);
-motor[driveBackLeft] = 0;
-motor[driveBackRight] = 0;
-motor[driveFrontLeft] = 0;
-motor[driveFrontRight] = 0;
-wait1Msec(500);
-
-//mogoPosTarget = mogoPos[0];
-
-
-
-wait1Msec(100);
-motor[driveBackLeft] = 127;
-motor[driveBackRight] = 127;
-motor[driveFrontLeft] = 127;
-motor[driveFrontRight] = 127;
-
-liftArm(80, 80);
-while(SensorValue[liftDown] == 0)
-{
-}
-liftArm(0, 0);
-clearLiftEnc();
-wait1Msec(900);
-
-//	startTask(mogoPID);
-
-
-//mogoPosTarget = mogoPos[0];
-motor[driveBackLeft] = 0;
-motor[driveBackRight] = 0;
-motor[driveFrontLeft] = 0;
-motor[driveFrontRight] = 0;
-wait1Msec(100);
-
-
-
-//clearDriveEnc();
-
-
-//startTask(drivePID);
-//drivePosTarget = 1000;
-*/
-
-
+doneWithCone = false;
 clearDriveEnc();
 clearGyro();
-
+startTask(drivePID);
 powClaw(70);
+
 startTask(drivePID);
 startTask(mogoPID);
 drivePosTarget = 500;
@@ -748,17 +719,17 @@ while(SensorValue[liftDown] == 0)
 }
 liftArm(0, 0);
 clearLiftEnc();
-wait1Msec(900);
+wait1Msec(500);
 
-drivePosTarget = 1500;
+drivePosTarget = 1450;
 
-while(driveRightEnc < 1350 )
+while(driveRightEnc < 1325)
 {
 
 }
 wait1Msec(200);
 mogoPosTarget = mogoPos[1];
-while(getPot() <mogoPosTarget)
+while(getPot() <900)
 {}
 coneCount = 1;
 
@@ -766,28 +737,63 @@ coneCount = 1;
 startTask(armPID);
 startTask(cone);
 
-drivePosTarget = 100;
-while(driveRightEnc > 200)
-{
+drivePosTarget = 200;
 
+while(driveRightEnc > 160)
+{
 }
 
+while(abs(nMotorEncoder[liftLeft]) > 20)
+{
+}
 
-
-targetHeading = 450;
+targetHeading = -1580;
 
 wait1Msec(1100);
 clearDriveEnc();
-//drivePosTarget = -350;
-wait1Msec(1200);
-targetHeading = 1550;
+drivePosTarget = -500; // drive to cone
+wait1Msec(600);
+
+powClaw(120);
+wait1Msec(200);
+powClaw(30);
+startTask(cone);
+
+wait1Msec(500);
+targetHeading = -1900;
+wait1Msec(200);
+clearDriveEnc();
+drivePosTarget = 1030;
+
+while(driveRightEnc < 970)
+{
+}
+clearDriveEnc();
+
+targetHeading = -2400;
+while(SensorValue(gyro) > -2300)
+{}
+wait1Msec(100);
+clearDriveEnc();
+
+drivePosTarget = 250;
+while(driveRightEnc < 210)
+{
+}
+
+//doneWithCone =true;
+
+
+
+targetHeading = -1400;
 wait1Msec(1000);
 clearDriveEnc();
-//drivePosTarget = 600;
+drivePosTarget = 1000;
+wait1Msec(500);
 //wait1Msec(250);
 mogoPosTarget = mogoPos[0];
 wait1Msec(1000);
-drivePosTarget = -400;
+drivePosTarget = 0;
 
 }
 
@@ -818,30 +824,40 @@ while (true)
 	else
 		drive(-vexRT[Ch2], -vexRT[Ch3]);
 
+	if(vexRT[Btn8R] == 1)
+	{
+		//mogoIsFront = !mogoIsFront;
 
-	//liftArm(15+(127*vexRT[Btn6D])+(-90*vexRT[Btn6U]));
 
-	/*if(vexRT[Btn5D] == 1 && !(press==vexRT[Btn5D]))
-	intr++;
+	}
 
-	press = vexRT[Btn5D];
+//	breaker = vexRT[Btn8R];
 
-	if(intr > 6)
-	intr = 0;
-	else if(vexRT[Btn8R] == 1)
-	intr = 0;*/
-
-	if(vexRT[Btn6U] == 1 && !(pressMU==vexRT[Btn6U]))
+	if(vexRT[Btn6D] == 1 && getPot()<450)
+	{
+		stopTask(mogoPID);
+		liftMogo(-20, -20);
+		mogoPosTarget = getPot();
+		isMove = true;
+	}
+	else if(coneCount > 5 && vexRT[Btn6D] == 1 && getPot()<1600)
+	{
+		stopTask(mogoPID);
+		liftMogo(4, 4);
+		mogoPosTarget = getPot();
+		isMove = true;
+	}
+	else if(vexRT[Btn6U] == 1)
 	{
 		stopTask(mogoPID);
 		liftMogo(90, 90);
 		mogoPosTarget = getPot();
 		isMove = true;
 	}
-	else if(vexRT[Btn6D] == 1 && !(pressMD==vexRT[Btn6D]))
+	else if(vexRT[Btn6D] == 1)
 	{
 		stopTask(mogoPID);
-		liftMogo(-90, -90);
+		liftMogo(-127, -127);
 		mogoPosTarget = getPot();
 		isMove = true;
 	}
@@ -850,42 +866,42 @@ while (true)
 		if(isMove)
 		{
 			startTask(mogoPID);
+			mogoPosTarget = getPot();
 			isMove = false;
 		}
 	}
 
-	breaker = vexRT[Btn8R];
+
 
 
 
 	if(SensorValue[liftDown] == 1)
+	{
 		clearLiftEnc();
-	if(SensorValue[Btn8U] == 1)
-	{
-		//powClaw(100);
-	//armPosTarget = 300
-	}
-	if(SensorValue[Btn8D] == 1)
-	{
-		powClaw(-130);
-		//startTask(armPID);
 	}
 
-
-	/*
-	if(SensorValue[Btn8U] == 1)
+	if(vexRT[Btn8D]==1)
 	{
-	stopTask(armPID);
-	startTask(driverLoads);
+		bottom = driverLoadArmPos;
+		armPosTarget = bottom;
 	}
-	else if(SensorValue[Btn8D] == 1)
+	else if(vexRT[Btn8U] == 1)
 	{
-	stopTask(driverLoads);
-	startTask(armPID);
+		bottom = armPos[0];
+		armPosTarget = bottom;
 	}
-	*/
 
-
+	if(vexRT[Btn8L] == 1)
+	{
+			stopTask(armPID)
+			while(SensorValue[liftDown] == 0)
+			{
+				liftArm(60, 60)
+			}
+			clearLiftEnc();
+			liftArm(0,0);
+			startTask(armPID);
+	}
 
 }
 }

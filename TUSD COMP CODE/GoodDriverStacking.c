@@ -36,7 +36,7 @@ const int mogoPos[9] = {350, 1600, 1660, 1747, 1870, 2100, 2310, 2580, 2790};
 
 //Arm Postitions
 /////////////////////
-const int armPos[9] = {-75, 440, 425, 410, 385, 380, 360, 350, 330};
+const int armPos[9] = {-75, 440, 425, 410, 385, 380, 360, 330, 330};
 #define zeroA 0
 #define oneA 0
 #define twoA 0
@@ -423,7 +423,7 @@ return returnValue;
 task armPID()
 {
 PID armControllerBegain, armControllerMiddle, armControllerEnd, armControllerDown;
-initPID(armControllerBegain, 0.26, 0.0, 0.7);
+initPID(armControllerBegain, 0.24, 0.0, 0.4);
 initPID(armControllerMiddle, 0.27, 0.0, 0.4);
 initPID(armControllerEnd, 0.4, 0.0, 0.3);
 initPID(armControllerDown, 0.20, 0.0, 0.4);

@@ -21,7 +21,7 @@
 
 //Mogo Posititions
 ////////////////////////down   1    2      3    4      5    6     7      8
-const int mogoPos[9] = {315, 1660, 1660, 1640, 1820, 2050, 2350, 2770, 2840};
+const int mogoPos[9] = {315, 1660, 1660, 1640, 1820, 2050, 2250, 2600, 2840};
 #define zeroM 350
 #define oneM (bottom + 1300),
 #define twoM (bottom + 1400)
@@ -36,7 +36,7 @@ const int mogoPos[9] = {315, 1660, 1660, 1640, 1820, 2050, 2350, 2770, 2840};
 
 //Arm Postitions
 /////////////////////
-const int armPos[9] = {-75, 401, 400, 400, 360, 355, 370, 330, 330};
+const int armPos[9] = {-75, 380, 380, 380, 340, 355, 350, 330, 310};
 #define zeroA 0
 #define oneA 0
 #define twoA 0
@@ -424,10 +424,10 @@ return returnValue;
 task armPID()
 {
 PID armControllerBegain, armControllerMiddle, armControllerEnd, armControllerDown;
-initPID(armControllerBegain, 0.26, 0.0, 0.7);
-initPID(armControllerMiddle, 0.29, 0.0, 0.4);
-initPID(armControllerEnd, 0.4, 0.0, 0.3);
-initPID(armControllerDown, 0.20, 0.0, 0.4);
+initPID(armControllerBegain, 0.26, 0.0, 0.4);
+initPID(armControllerMiddle, 0.35, 0.0, 0.4);
+initPID(armControllerEnd, 0.5, 0.0, 0.4);
+initPID(armControllerDown, 0.2, 0.0, 0.4);
 //setMinSpeedPID(armController, -20);
 
 while(true)

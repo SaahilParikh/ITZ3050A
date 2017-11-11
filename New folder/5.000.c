@@ -21,7 +21,7 @@
 
 //Mogo Posititions
 ////////////////////////down   1    2      3    4      5    6     7      8
-const int mogoPos[9] = {315, 1660, 1660, 1640, 1820, 2050, 2350, 2770, 2840};
+const int mogoPos[9] = {315, 1660, 1660, 1640, 1820, 1990, 2250, 2600, 2750};
 #define zeroM 350
 #define oneM (bottom + 1300),
 #define twoM (bottom + 1400)
@@ -36,7 +36,7 @@ const int mogoPos[9] = {315, 1660, 1660, 1640, 1820, 2050, 2350, 2770, 2840};
 
 //Arm Postitions
 /////////////////////
-const int armPos[9] = {-75, 401, 400, 400, 360, 355, 370, 330, 330};
+const int armPos[9] = {-75, 365, 365, 360, 350, 340, 350, 330, 310};
 #define zeroA 0
 #define oneA 0
 #define twoA 0
@@ -187,23 +187,33 @@ while(1){
 		else{
 			loopIsRunning = true;
 			while(!breaker && loopIsRunning){
-				powClaw(60);
+				powClaw(127);
 				wait1Msec(100);
-				go2Stack();
-				wait1Msec(200);
-				while(vexRT[Btn5U] == 0)
+				powClaw(30);
+				while(vexRT[Btn5U] == 1 && vexRT[Btn5D] == 0)
 				{
-
 				}
-				powClaw(-80);
-				wait1Msec(100);
+					if(vexRT[Btn5D] == 1)
+						break;
+				go2Stack();
+				//while(vexRT[Btn5U] == 0){}
+
+					while(vexRT[Btn5D] == 1)
+					{
+					}
+				while(SensorValue[clawOpen] == 0)
+					powClaw(-127);
+
+				powClaw(-10);
 				coneCount++;
 				if(coneCount > 8 || coneCount <0){
 					coneCount=8;
 				}
 				mogoPosTarget = mogoPos[coneCount];
 
-				armPosTarget = 20;
+
+				wait1Msec(200);
+				armPosTarget = 40;
 				while(SensorValue[liftDown] == 0 && vexRT[Btn5U] == 0 ){
 				}
 				wait1Msec(100);
@@ -424,10 +434,10 @@ return returnValue;
 task armPID()
 {
 PID armControllerBegain, armControllerMiddle, armControllerEnd, armControllerDown;
-initPID(armControllerBegain, 0.26, 0.0, 0.7);
-initPID(armControllerMiddle, 0.29, 0.0, 0.4);
-initPID(armControllerEnd, 0.4, 0.0, 0.3);
-initPID(armControllerDown, 0.20, 0.0, 0.4);
+initPID(armControllerBegain, 0.26, 0.0, 0.4);
+initPID(armControllerMiddle, 0.39, 0.0, 0.4);
+initPID(armControllerEnd, 0.65, 0.0, 0.4);
+initPID(armControllerDown, 0.2, 0.0, 0.4);
 //setMinSpeedPID(armController, -20);
 
 while(true)
@@ -850,6 +860,7 @@ while (true)
 		if(isMove)
 		{
 			startTask(mogoPID);
+			mogoPosTarget = getPot();
 			isMove = false;
 		}
 	}
