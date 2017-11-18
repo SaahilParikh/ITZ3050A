@@ -541,31 +541,3 @@ while(SensorValue[liftDown] == 0){
 }
 wait1Msec(100);
 }
-
-task coneStay()
-{
-powClaw(70);
-wait1Msec(100);
-go2Stack();
-
-powClaw(-127);
-while(SensorValue[clawOpen] == 0)
-{}
-
-powClaw(-10);
-coneCount++;
-if(coneCount > 8 || coneCount <0){
-	coneCount=8;
-}
-mogoPosTarget = mogoPos[coneCount];
-
-while(coneCount == 3 && !doneWithCone)
-{
-
-}
-
-wait1Msec(300);
-armPosTarget = stationaryArmPos;
-
-wait1Msec(100);
-}

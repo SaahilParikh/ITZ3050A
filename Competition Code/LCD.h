@@ -1,21 +1,19 @@
-#pragma systemFile            	// eliminates warning for unreferenced functions
+#pragma systemFile            	// eliminates warning for "unreferenced" functions
 
 
 
-int numberAutons = 12;
-string autonomousMenu[12] = {
+int numberAutons = 10;
+string autonomousMenu[10] = {
 	"Team 3050A", //0
 	"Skills", //1
-	"Red Right 24:", //2
-	"Red Right 9:", //3
+	"Red Right 24", //2
+	"Red Right 5", //3
 	"Red left 24", //4
 	"Red left 5", //5
 	"Blue Right 24", //6
-	"Blue Right 9", //7
-	"Blue Left 24:", //8
-	"Blue Left 9:", //9
-	"Red Right 22", //10
-	"Blue Right 22" //11
+	"Blue Right 5", //7
+	"Blue Left 24", //8
+	"Blue Left 5", //9
 };
 
 string rEncoderString, lEncoderString, gyroString, driveEncoderString, liftPotString;
