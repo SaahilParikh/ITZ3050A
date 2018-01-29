@@ -1,10 +1,11 @@
 //Mogo Posititions
 ////////////////////////down   1    2      3    4      5    6     7      8
-const int mogoPos[9] = {315, 1550, 1500, 1500, 1600, 1790, 1850, 2380, 2500};
-const int armPos[9] = {   0,  420,  395,  350,  350,  350,  350,  335,  310};
-
+const int mogoPos[9] = {315, 1550, 1490, 1500, 1570, 1700, 1950, 2250, 2750};
+const int armPos[9] = {   0,  430,  420,  410,  390,  365,  345,  335,  335};
 
 #define zeroM 35
+
+int waitBeforeAuton = 0;
 
 #define wheelDiameter 4
 
@@ -12,12 +13,8 @@ const int armPos[9] = {   0,  420,  395,  350,  350,  350,  350,  335,  310};
 #define timeConstLift 1
 #define timeConstMogo 1
 
-//Arm Postitions
-/////////////////////
-
-
 int bottom = armPos[0];
-#define driverLoadArmPos 150
+#define driverLoadArmPos 110
 #define stationaryArmPos 290
 #define topArmPos 300
 
@@ -45,8 +42,6 @@ int drivePosTarget = 0;
 int targetHeading = 0;
 
 int coneCount = 1; // how many cones we jave
-
-
 
 bool pressMU = false;
 bool pressMD = false;

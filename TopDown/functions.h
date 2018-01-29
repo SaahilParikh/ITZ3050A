@@ -282,7 +282,7 @@ else
 task mogoPID()
 {
 PID mogoController;
-initPID(mogoController, 0.14, 0.0, 0.17);
+initPID(mogoController, 0.17, 0.0, 0.17);
 while(true)
 {
 	int mogoPowerR = mogoPIDCalculation(mogoPosTarget, mogoController, potR);

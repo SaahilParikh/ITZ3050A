@@ -18,9 +18,9 @@ string autonomousMenu[12] = {
 	"Red Right 22" //11
 };
 
-string rEncoderString, lEncoderString, gyroString, driveEncoderString, liftPotString;
+string rEncoderString, lEncoderString, gyroString, driveEncoderString, liftPotString, waitString;
 
-#define numOfSettingsPages 4
+#define numOfSettingsPages 5
 
 enum { 	LCD_NO_BUTTONS = 0,
 	LCD_LEFT_BUTTON = 1,
@@ -128,7 +128,7 @@ void debugLift()
 	waitForRelease();
 	while(nLCDButtons != 2)
 	{
-		sprintf(liftPotString,"Pot:%d, Pot:%d\r\n", SensorValue[potLeft], SensorValue[potRight]);
+		//sprintf(liftPotString,"Pot:%d, Pot:%d\r\n", SensorValue[potLeft], SensorValue[potRight]);
 
 		if(nLCDButtons == rightButton)
 			liftMogo(127, 127);
@@ -150,7 +150,7 @@ void settings()
 	int page = 0;
 	while(page < numOfSettingsPages &&page >= 0)
 	{
-		waitForPress();
+
 		if(nLCDButtons == rightButton)
 		{
 			page++;
@@ -201,10 +201,18 @@ void settings()
 			centerLine(1, "clear");
 			waitForPress();
 				if(nLCDButtons == 2)
-					gyroClear();
+					clearGyro();
 			break;
+		case 4:
+			sprintf(waitString,"Wait: %d\r\n", driveLeftEnc);
+			centerLine(0, waitString);
+			centerLine(1, "Enter");
+			waitForPress();
+				if(nLCDButtons == 2)
+					waitBeforeAuton = abs(driveLeftEnc);
+		break;
 
-			delay(20);
+			delay(70);
 		}
 	}
 }
