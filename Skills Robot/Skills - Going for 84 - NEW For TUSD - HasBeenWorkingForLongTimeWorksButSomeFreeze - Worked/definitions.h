@@ -15,7 +15,7 @@ const float basewheelcirc = 12.99;
 const float baseToInches = 25.94
 
 #define testedDriveTimeWaitConst (2)
-#define testedTurnTimeWaitConst (2)
+#define testedTurnTimeWaitConst (3)
 
 #define wheelCircum (wheelDiameter)
 

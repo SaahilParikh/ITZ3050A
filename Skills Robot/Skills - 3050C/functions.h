@@ -193,10 +193,10 @@ void driveKeepHeading(int encoderCount, int gyroHeading = targetHeading, int add
 {
 
 	PID driveController;
-	initPID(driveController, 0.25, 0.000, 0.1);
+	initPID(driveController, 0.75, 0.000, 0.55);
 
 	PID turnController;
-	initPID(turnController, 2.0, 0.00, 0.2);
+	initPID(turnController, 0.5, 0.00, 0.1);
 
 	int statCount = 0;
 	time1[T1] = 0;
@@ -212,7 +212,7 @@ void driveKeepHeading(int encoderCount, int gyroHeading = targetHeading, int add
 		drivePowerR = limit(drivePIDCalculation(encoderCount, driveController, driveRightEnc), 127);
 		drivePowerL = limit(drivePIDCalculation(encoderCount, driveController, driveLeftEnc), 127);
 
-		if(abs(targetHeading-getHeading)>1)
+		if(abs(targetHeading-getHeading)>10)
 			driveTurnPower = turnToHeadingCalucation(gyroHeading, turnController);
 		else
 			driveTurnPower = 0;
@@ -243,7 +243,7 @@ void driveTurn (int targetHeadings, int addedTime = 0, float kPTurn = 0.30, int 
 
 		PID turnController;
 		//initPID(turnController, kPTurn, 0.0001, 11.8);
-		initPID(turnController, kPTurn, 0.0000, 3.7);
+		initPID(turnController, kPTurn, 0.0000, 5.7);
 		time1[T2] = 0;
 
 		int statCount = 0;

@@ -4,7 +4,7 @@ int waitBeforeAuton = 0;
 
 #define wheelDiameter 1
 
-const float ticsPerDegree = 0.9506;
+const float ticsPerDegree = 1.1503;
 
 const int slits = 90;
 const float wheelDiameterMeters = 0.1016;
@@ -15,7 +15,7 @@ const float basewheelcirc = 12.99;
 const float baseToInches = 25.94
 
 #define testedDriveTimeWaitConst (2)
-#define testedTurnTimeWaitConst (2)
+#define testedTurnTimeWaitConst (3)
 
 #define wheelCircum (wheelDiameter)
 

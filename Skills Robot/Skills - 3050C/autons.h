@@ -32,7 +32,7 @@ void skills()
 	driveTurn(-450); // turn 45 degrees to line up with starting pole, parrallel.
 	clearDriveEnc();
 
-	driveKeepHeading(-770); // bcjkward parellel to bar
+	driveKeepHeading(-900); // bcjkward parellel to bar
 
 	driveTurn(-1350); // perpendic to bar
 	clearDriveEnc();
@@ -48,7 +48,7 @@ void skills()
 
 	driveKeepHeading(253); // robot backwards
 
-	driveTurn(targetHeading-1186, -1500);
+	driveTurn(targetHeading-1188, -1500);
 	clearDriveEnc();
 
 	//driveKeepHeading(-510);
@@ -56,7 +56,7 @@ void skills()
 
 	startTask(mogoDownTask);
 
-	driveKeepHeading(1658, targetHeading, -1420);
+	driveKeepHeading(1666, targetHeading, -1420);
 
 	drive(15, 15);
 	wait1Msec(320);
@@ -69,19 +69,19 @@ void skills()
 
 	driveKeepHeading(-70, targetHeading, -1270);
 
-	driveTurn(targetHeading+1186);
+	driveTurn(targetHeading+1188);
 	clearDriveEnc();
 
 	startTask(mogoDownTask);//2ndmogo drop
 
-	driveKeepHeading(300);
+	driveKeepHeading(150);
 
 	driveKeepHeading(-200);
 
 	driveTurn(targetHeading+900);
 	clearDriveEnc();
 
-	driveKeepHeading(420);
+	driveKeepHeading(440);
 
 	driveTurn(targetHeading+900);
 	clearDriveEnc();
@@ -100,7 +100,7 @@ void skills()
 	clearDriveEnc();
 
 	startTask(mogoDownTask); // drop 3rd
-	driveKeepHeading(470);
+	driveKeepHeading(440);
 
 	powMogo(60);
 
@@ -113,12 +113,12 @@ void skills()
 
 	startTask(mogoDownTask);
 
-	driveKeepHeading(800);
+	driveKeepHeading(830);
 
 	driveTurn(targetHeading-900);
 	clearDriveEnc();
 
-	driveKeepHeading(620);
+	driveKeepHeading(650);
 
 	drive(30, 30);
 	wait1Msec(250);
@@ -153,14 +153,14 @@ void skills()
 
 	driveKeepHeading(2400, targetHeading, -700, 30);
 
-	driveTurn(targetHeading-162);
+	driveTurn(targetHeading-120);
 	clearDriveEnc();
 
 	driveKeepHeading(1300);
 
 	startTask(mogoDownTask);
 
-	driveTurn(targetHeading+162);
+	driveTurn(targetHeading+120);
 	clearDriveEnc();
 
 	driveKeepHeading(200);
@@ -174,7 +174,7 @@ void skills()
 
 	driveKeepHeading(-300);
 
-	driveTurn(targetHeading+1178);
+	driveTurn(targetHeading+1218);
 	clearDriveEnc();
 
 	stopTask(mogoUpTask);
@@ -191,7 +191,7 @@ void skills()
 
 	driveKeepHeading(0, targetHeading, -1300, 30);
 
-	driveTurn(targetHeading-1178);
+	driveTurn(targetHeading-1218);
 	clearDriveEnc();
 
 	startTask(mogoDownTask);
